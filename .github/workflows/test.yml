@@ -9,11 +9,11 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # ---- UI TESTS ----
       - name: Set up Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -25,7 +25,7 @@ jobs:
 
       # ---- API TESTS ----
       - name: Set up Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
 
@@ -43,14 +43,14 @@ jobs:
       # ---- UPLOAD ARTIFACTS ----
       - name: Upload Selenium Artifacts
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: selenium-artifacts
           path: artifacts/selenium-reports/
 
       - name: Upload Newman Artifacts
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: newman-artifacts
           path: artifacts/newman/
