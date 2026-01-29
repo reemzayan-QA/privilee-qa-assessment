@@ -1,51 +1,164 @@
 {
   "info": {
-    "name": "GoREST API Tests",
+    "name": "GoREST Public v2 - Privilee QA Assessment",
+    "_postman_id": "7a9d2b11-1234-4c9e-aaaa-bbbbccccdddd",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
       "name": "GET /users",
-      "request": { "method": "GET", "url": "{{baseUrl}}/users" },
-      "event": [{
-        "listen": "test",
-        "script": { "exec": [
-          "pm.test('Status 200', ()=> pm.response.to.have.status(200));",
-          "pm.test('Body is array', ()=> pm.expect(pm.response.json()).to.be.an('array'));"
-        ]}
-      }]
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": "{{baseUrl}}/users"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response body is JSON array', function () {",
+              "    pm.expect(pm.response.json()).to.be.an('array');",
+              "});",
+              "",
+              "pm.test('User object has required fields', function () {",
+              "    const body = pm.response.json();",
+              "    if (body.length > 0) {",
+              "        pm.expect(body[0]).to.have.property('id');",
+              "        pm.expect(body[0]).to.have.property('name');",
+              "        pm.expect(body[0]).to.have.property('email');",
+              "        pm.expect(body[0]).to.have.property('gender');",
+              "        pm.expect(body[0]).to.have.property('status');",
+              "    }",
+              "});"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "GET /posts",
-      "request": { "method": "GET", "url": "{{baseUrl}}/posts" },
-      "event": [{
-        "listen": "test",
-        "script": { "exec": [
-          "pm.test('Status 200', ()=> pm.response.to.have.status(200));"
-        ]}
-      }]
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": "{{baseUrl}}/posts"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response body is JSON array', function () {",
+              "    pm.expect(pm.response.json()).to.be.an('array');",
+              "});",
+              "",
+              "pm.test('Post object has required fields', function () {",
+              "    const body = pm.response.json();",
+              "    if (body.length > 0) {",
+              "        pm.expect(body[0]).to.have.property('id');",
+              "        pm.expect(body[0]).to.have.property('user_id');",
+              "        pm.expect(body[0]).to.have.property('title');",
+              "        pm.expect(body[0]).to.have.property('body');",
+              "    }",
+              "});"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "GET /users/:id/posts",
-      "request": { "method": "GET", "url": "{{baseUrl}}/users/{{userId}}/posts" },
-      "event": [{
-        "listen": "test",
-        "script": { "exec": [
-          "pm.test('Status 200', ()=> pm.response.to.have.status(200));",
-          "const arr = pm.response.json();",
-          "arr.forEach(p => pm.expect(p.user_id).to.eql(parseInt(pm.environment.get('userId'))));"
-        ]}
-      }]
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": "{{baseUrl}}/users/{{userId}}/posts"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response body is JSON array', function () {",
+              "    pm.expect(pm.response.json()).to.be.an('array');",
+              "});",
+              "",
+              "pm.test('Posts belong to the correct user', function () {",
+              "    const body = pm.response.json();",
+              "    const uid = parseInt(pm.environment.get('userId'));",
+              "    body.forEach(function(post){",
+              "        pm.expect(post.user_id).to.eql(uid);",
+              "    });",
+              "});"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "GET /todos",
-      "request": { "method": "GET", "url": "{{baseUrl}}/todos" },
-      "event": [{
-        "listen": "test",
-        "script": { "exec": [
-          "pm.test('Status 200', ()=> pm.response.to.have.status(200));"
-        ]}
-      }]
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": "{{baseUrl}}/todos"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response body is JSON array', function () {",
+              "    pm.expect(pm.response.json()).to.be.an('array');",
+              "});",
+              "",
+              "pm.test('Todo object has required fields', function () {",
+              "    const body = pm.response.json();",
+              "    if (body.length > 0) {",
+              "        pm.expect(body[0]).to.have.property('id');",
+              "        pm.expect(body[0]).to.have.property('user_id');",
+              "        pm.expect(body[0]).to.have.property('title');",
+              "        pm.expect(body[0]).to.have.property('status');",
+              "    }",
+              "});"
+            ]
+          }
+        }
+      ]
     }
   ]
 }
