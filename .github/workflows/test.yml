@@ -34,6 +34,10 @@ jobs:
       - name: Install Newman
         run: npm install -g newman newman-reporter-htmlextra
 
+      - name: Debug - show collection header
+        run: |
+          head -n 8 ./collections/gorest_public_v2.postman_collection.json
+
       - name: Run Newman API tests
         env:
           GOREST_TOKEN: ${{ secrets.GOREST_TOKEN }}
