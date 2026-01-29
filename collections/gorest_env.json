@@ -2,6 +2,8 @@
   "name": "GoREST Env",
   "values": [
     { "key": "baseUrl", "value": "https://gorest.co.in/public/v2", "enabled": true },
-    { "key": "userId", "value": "7373665", "enabled": true }
+    { "key": "userId", "value": "7373665", "enabled": true },
+    { "key": "token", "value": "", "enabled": true }
   ]
 }
+
