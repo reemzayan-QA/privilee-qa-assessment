@@ -2,20 +2,22 @@ name: Tests
 
 on:
   push:
+  pull_request:
 
 jobs:
   test:
     runs-on: ubuntu-22.04
 
     steps:
+      # ---------- CHECKOUT ----------
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ---- UI TESTS ----
+      # ---------- UI TESTS (Selenium + Maven/TestNG) ----------
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '17'
 
       - name: Run Selenium UI tests
@@ -23,7 +25,7 @@ jobs:
           cd ui-tests
           mvn clean test
 
-      # ---- API TESTS ----
+      # ---------- API TESTS (Newman) ----------
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
@@ -33,22 +35,27 @@ jobs:
         run: npm install -g newman newman-reporter-htmlextra
 
       - name: Run Newman API tests
+        env:
+          GOREST_TOKEN: ${{ secrets.GOREST_TOKEN }}
         run: |
           newman run ./collections/gorest_public_v2.postman_collection.json \
           -e ./collections/gorest_env.json \
+          --env-var token=$GOREST_TOKEN \
           --reporters cli,junit,htmlextra \
           --reporter-junit-export ./artifacts/newman/results.xml \
           --reporter-htmlextra-export ./artifacts/newman/report.html
 
-      # ---- UPLOAD ARTIFACTS ----
-      - name: Upload Selenium Artifacts
+      # ---------- UPLOAD ARTIFACTS ----------
+      - name: Upload Selenium Artifacts (reports + screenshots)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: selenium-artifacts
-          path: artifacts/selenium-reports/
+          path: |
+            ui-tests/target/surefire-reports/
+            artifacts/selenium-reports/
 
-      - name: Upload Newman Artifacts
+      - name: Upload Newman Artifacts (HTML + JUnit)
         if: always()
         uses: actions/upload-artifact@v4
         with:
