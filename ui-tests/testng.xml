@@ -1,0 +1,12 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Privilee UI Suite">
+  <test name="UI Tests">
+    <classes>
+      <class name="tests.PageLoadTest"/>
+      <class name="tests.FilterPopupTest"/>
+      <class name="tests.SearchVenueTest"/>
+      <class name="tests.MapLocatorTest"/>
+      <class name="tests.PerformanceTest"/>
+    </classes>
+  </test>
+</suite>

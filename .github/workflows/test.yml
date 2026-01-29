@@ -1,0 +1,56 @@
+name: Tests
+
+on:
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # ---- UI TESTS ----
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Run Selenium UI tests
+        run: |
+          cd ui-tests
+          mvn clean test
+
+      # ---- API TESTS ----
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Newman
+        run: npm install -g newman newman-reporter-htmlextra
+
+      - name: Run Newman API tests
+        run: |
+          newman run ./collections/gorest_public_v2.postman_collection.json \
+          -e ./collections/gorest_env.json \
+          --reporters cli,junit,htmlextra \
+          --reporter-junit-export ./artifacts/newman/results.xml \
+          --reporter-htmlextra-export ./artifacts/newman/report.html
+
+      # ---- UPLOAD ARTIFACTS ----
+      - name: Upload Selenium Artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: selenium-artifacts
+          path: artifacts/selenium-reports/
+
+      - name: Upload Newman Artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: newman-artifacts
+          path: artifacts/newman/
