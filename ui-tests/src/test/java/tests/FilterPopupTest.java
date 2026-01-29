@@ -5,11 +5,13 @@ import org.testng.annotations.Test;
 import pom.PrivileeMapPage;
 
 public class FilterPopupTest extends BaseTest {
+
     @Test
-    public void verifyFilterOpens() {
+    public void verifyFiltersSectionVisible() {
         PrivileeMapPage page = new PrivileeMapPage(driver, wait);
         page.open();
-        page.openFilters();
-        Assert.assertTrue(page.isSearchVisible(), "Filter not available");
+
+        Assert.assertTrue(page.isFiltersVisible(),
+                "Filters popup is not visible ");
     }
 }

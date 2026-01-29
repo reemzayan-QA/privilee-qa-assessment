@@ -5,10 +5,13 @@ import org.testng.annotations.Test;
 import pom.PrivileeMapPage;
 
 public class SearchVenueTest extends BaseTest {
+
     @Test
-    public void verifySearchBoxVisible() {
+    public void verifyLocationFilterVisible() {
         PrivileeMapPage page = new PrivileeMapPage(driver, wait);
         page.open();
-        Assert.assertTrue(page.isSearchVisible(), "Search box not visible");
+
+        Assert.assertTrue(page.isLocationVisible(),
+                "Location filter section is not visible");
     }
 }
