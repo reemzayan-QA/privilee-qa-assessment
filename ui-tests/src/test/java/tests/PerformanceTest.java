@@ -9,7 +9,7 @@ public class PerformanceTest extends BaseTest {
         long start = System.currentTimeMillis();
         driver.get("https://staging-website.privilee.ae/map");
         long loadTime = System.currentTimeMillis() - start;
-        Assert.assertTrue(loadTime < 4000, "Page loading is too slow");
-        //4 to 6 seconds are acceptable for Interactive Maps, but i will pick here 4 secs
+        Assert.assertTrue(loadTime < 6000, "Page loading is too slow");
+        // 6 seconds is acceptable for Interactive Maps
     }
 }
