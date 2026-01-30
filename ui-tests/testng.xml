@@ -4,7 +4,7 @@
     <classes>
       <class name="tests.PageLoadTest"/>
       <class name="tests.FilterPanelTest"/>
-      <class name="tests.SearchVenueTest"/>
+      <class name="tests.FilterSelectionTest"/>
       <class name="tests.MapLocatorTest"/>
       <class name="tests.PerformanceTest"/>
       <class name="tests.FilterNormalFlowTest"/>

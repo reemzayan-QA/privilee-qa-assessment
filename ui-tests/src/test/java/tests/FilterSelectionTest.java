@@ -4,7 +4,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import pom.PrivileeMapPage;
 
-public class SearchVenueTest extends BaseTest {
+public class FilterSelectionTest extends BaseTest {
 
     @Test
     public void verifyLocationFilterVisible() {
