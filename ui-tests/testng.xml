@@ -10,6 +10,7 @@
       <class name="tests.FilterNormalFlowTest"/>
       <class name="tests.MapEdgeCaseMarkersNotRenderedTest"/>
       <class name="tests.VenueDataAccuracyTest"/>
+      <class name="tests.OverFilteringNoVenuesTest"/>
 
     </classes>
   </test>
