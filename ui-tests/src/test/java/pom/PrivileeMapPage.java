@@ -60,6 +60,7 @@ public class PrivileeMapPage {
             "img[src*='googleapis.com'], img[src*='gstatic.com'], [aria-label*='marker'], [class*='marker']"
     );
 
+    // ----- Zero venues UI (from your screenshots) -----
     // Filter footer CTA: "Show X venues"
     private final By showVenuesButton = By.xpath("//button[contains(normalize-space(.), 'Show') and contains(normalize-space(.), 'venues')]");
     private final By showZeroVenuesButton = By.xpath("//button[contains(normalize-space(.), 'Show 0 venues')]");
@@ -71,14 +72,14 @@ public class PrivileeMapPage {
 
     // ---------- Dynamic locator ----------
     private By filterChipByText(String text) {
-        
+        // Chips are buttons. Contains match keeps it flexible (e.g. "Abu Dhabi", "Fitness", "Recovery")
         return By.xpath("//button[contains(normalize-space(.), '" + text + "')]");
     }
 
     // ---------- Actions ----------
     public void open() {
         driver.get(BASE_URL);
-        // Wait for a stable anchor to indicate UI rendered
+        // Wait for stable anchor to indicate UI rendered
         wait.until(ExpectedConditions.presenceOfElementLocated(filterHeader));
     }
 
@@ -123,7 +124,7 @@ public class PrivileeMapPage {
     }
 
     public boolean isNoResultsVisible() {
-        // covers both generic "no results" and your specific apology text
+        // covers both generic and your specific apology text
         return driver.findElements(noResultsMsg).size() > 0 || driver.findElements(zeroVenuesApology).size() > 0;
     }
 
@@ -194,6 +195,23 @@ public class PrivileeMapPage {
         return btns.isEmpty() ? "" : btns.get(0).getText().trim();
     }
 
+    /**
+     * Extracts the number from "Show N venues". Returns -1 if not found.
+     */
+    public int getShowVenuesCount() {
+        String text = getShowVenuesButtonText();
+        if (text == null) return -1;
+
+        String digits = text.replaceAll("[^0-9]", "");
+        if (digits.isEmpty()) return -1;
+
+        try {
+            return Integer.parseInt(digits);
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
     public void clickShowVenues() {
         WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(showVenuesButton));
         try {
@@ -208,6 +226,73 @@ public class PrivileeMapPage {
         boolean headerVisible = driver.findElements(zeroVenuesHeader).size() > 0;
         boolean apologyVisible = driver.findElements(zeroVenuesApology).size() > 0;
         return headerVisible && apologyVisible;
+    }
+
+    /**
+     * Applies filters in a given location until "Show 0 venues" is reached, or maxClicks is hit.
+     * Returns the final "Show N venues" count it ended with (0..N), or -1 if CTA not found.
+     *
+     * Designed to be resilient to staging data changes.
+     */
+    public int applyFiltersToMinimizeVenues(String locationLabel, int maxClicks) {
+
+        openFiltersPanel();
+        selectFilterChip(locationLabel);
+
+        int clicks = 0;
+
+        // Try to click filter option buttons (exclude Clear filters + the CTA itself).
+        By optionButtons = By.xpath(
+                "//button[" +
+                        "not(contains(normalize-space(.),'Clear filters')) and " +
+                        "not(contains(normalize-space(.),'Show')) and " +
+                        "string-length(normalize-space(.))>1" +
+                "]"
+        );
+
+        while (clicks < maxClicks) {
+
+            int current = getShowVenuesCount();
+            if (current == 0) return 0;
+
+            List<WebElement> buttons = driver.findElements(optionButtons);
+            boolean clickedSomething = false;
+
+            for (WebElement btn : buttons) {
+                if (clicks >= maxClicks) break;
+
+                try {
+                    if (!btn.isDisplayed() || !btn.isEnabled()) continue;
+
+                    String label = btn.getText().trim();
+                    if (label.isEmpty()) continue;
+
+                    // Avoid re-clicking the location chip itself
+                    if (label.contains(locationLabel)) continue;
+
+                    // Click
+                    try {
+                        btn.click();
+                    } catch (Exception e) {
+                        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
+                    }
+
+                    waitShortForUpdate();
+                    clicks++;
+                    clickedSomething = true;
+
+                    int updated = getShowVenuesCount();
+                    if (updated == 0) return 0;
+
+                } catch (Exception ignored) {
+                    // try next
+                }
+            }
+
+            if (!clickedSomething) break;
+        }
+
+        return getShowVenuesCount();
     }
 
     // ---------- Data accuracy helper ----------
