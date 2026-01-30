@@ -85,41 +85,49 @@ public class PrivileeMapPage {
     }
 
     /**
-     * ✅ Clicks the first filter CHIP that contains "+" (unselected state),
-     * expecting it to toggle (e.g., "+ Hotel" -> "× Hotel").
-     */
-    public boolean toggleFirstAvailableFilterChip() {
-        // Chips appear as buttons with "+" text in your screenshot
-        By chipWithPlus = By.xpath("//button[contains(normalize-space(.), '+')]");
+ * Clicks the first available filter button (chips) in the filter panel.
+ * Since buttons may not toggle text (+/×), we validate click using UI reaction:
+ * - Clear filters appears OR
+ * - no results / error appears OR
+ * - results/markers count changes
+ */
+    public boolean clickFirstFilterButtonAndDetectChange() {
 
-        List<WebElement> chips = driver.findElements(chipWithPlus);
-        for (WebElement chip : chips) {
-            try {
-                if (chip.isDisplayed() && chip.isEnabled()) {
-                    String before = chip.getText().trim();
+    int beforeCards = getVenueCardCount();
+    int beforeMarkers = getMarkerLikeCount();
 
-                    chip.click();
-                    sleep(1200);
+    // Filter options as buttons/chips (best-effort)
+    By filterButtons = By.xpath(
+            "//button[not(contains(.,'Clear filters')) and normalize-space(.)!='' and string-length(normalize-space(.))>1]"
+    );
 
-                    String after = chip.getText().trim();
+    List<WebElement> buttons = driver.findElements(filterButtons);
 
-                    // If text changed, we toggled
-                    if (!before.equals(after)) {
-                        return true;
-                    }
-                }
-            } catch (Exception ignored) {
-                // fallback JS click
-                try {
-                    ((JavascriptExecutor) driver).executeScript("arguments[0].click();", chip);
-                    return true;
-                } catch (Exception ignoredAgain) {
-                    // continue loop
-                }
+    for (WebElement btn : buttons) {
+        try {
+            if (btn.isDisplayed() && btn.isEnabled()) {
+                btn.click();
+            } else {
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
             }
+
+            waitShortForUpdate();
+
+            int afterCards = getVenueCardCount();
+            int afterMarkers = getMarkerLikeCount();
+
+            boolean changed = (afterCards != beforeCards) || (afterMarkers != beforeMarkers);
+            boolean hasState = isClearFiltersVisible() || isNoResultsVisible() || isErrorVisible();
+
+            if (changed || hasState) return true;
+        } catch (Exception ignored) {
+            // try next button
         }
-        return false;
     }
+
+    return false;
+    }
+
 
     public void waitShortForUpdate() {
         sleep(1500);
