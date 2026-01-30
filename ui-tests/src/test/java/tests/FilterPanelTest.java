@@ -4,7 +4,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import pom.PrivileeMapPage;
 
-public class FilterPopupTest extends BaseTest {
+public class FilterPanelTest extends BaseTest {
 
     @Test
     public void verifyFiltersSectionVisible() {
@@ -12,6 +12,6 @@ public class FilterPopupTest extends BaseTest {
         page.open();
 
         Assert.assertTrue(page.isFiltersVisible(),
-                "Filters popup is not visible ");
+                "Filters panel is not visible ");
     }
 }

@@ -3,10 +3,14 @@
   <test name="UI Tests">
     <classes>
       <class name="tests.PageLoadTest"/>
-      <class name="tests.FilterPopupTest"/>
+      <class name="tests.FilterPanelTest"/>
       <class name="tests.SearchVenueTest"/>
       <class name="tests.MapLocatorTest"/>
       <class name="tests.PerformanceTest"/>
+      <class name="tests.FilterNormalFlowTest"/>
+      <class name="tests.MapEdgeCaseMarkersNotRenderedTest"/>
+      <class name="tests.VenueDataAccuracyTest"/>
+
     </classes>
   </test>
 </suite>
