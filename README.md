@@ -33,6 +33,8 @@ GitHub Actions runs both UI and API tests and uploads reports as artifacts.
 
 ---
 ## Details of the Test Scenarios
+## The following are 4 UI/smoke tests, 1 performance test, 2 functional tests covering normal and edge flows, and 1 data accuracy test.
+
 1) Page Load Smoke Test
 
 Test: PageLoadTest
@@ -73,22 +75,22 @@ Filters are a primary entry point for user navigation. If the filter panel is mi
 
 3) Search / Location Controls Visibility Test
 
-Test: SearchVenueTest
+Test: FilterSelectionTest
 
 Feature being tested
-Presence of search/location controls within the filter area (e.g., location chips Dubai/Abu Dhabi or search-related UI).
+Presence of filter selection buttons/ controls within the filter page , such city so on.
 
 Expected outcome
-Search/location controls are visible and usable.
+Filter selection buttons/ controls are visible and usable.
 
 Setup / Teardown
 
-Setup: Open staging map page and wait for the filter section to load
+Setup: Open staging map page and wait for the filter page to load
 
 Teardown: Close the browser
 
 Why this test is important
-Search/location is a core discovery path. If it disappears due to UI regression, users can’t find venues efficiently.
+Filter selection buttons/ controls are essential to be displayed, otherwise users can’t find venues efficiently and the filter section is broken.
 
 4) Map Rendering Test
 
@@ -117,7 +119,7 @@ Feature being tested
 Initial page load performance (basic performance regression check).
 
 Expected outcome
-The page reaches a usable state within the defined threshold (your test’s configured limit).
+The page reaches a usable state within the defined threshold.
 
 Setup / Teardown
 
@@ -126,27 +128,25 @@ Setup: Start timer, navigate to staging map page, stop timer when key UI anchor 
 Teardown: Close browser
 
 Why this test is important
-Performance regressions are common in SPAs (especially map pages). This gives early warning if load time becomes unacceptable.
+Performance is a main test to be carried out, especially for landing pages containing SPA Maps. This gives early warning if load time becomes unacceptable.
 
 6) Filter Functionality – Normal User Flow
 
 Test: FilterNormalFlowTest
 
 Feature being tested
-Functional filtering behavior when a user clicks a filter button/chip.
+Functional filtering behavior when a user clicks a filter button/control.
 
 Expected outcome
 After clicking a filter button:
 
-Results/markers change OR
-
-a valid state appears (e.g., “Clear filters”, “No results”, or an error message)
+Results/markers change OR a valid state appears (e.g., “Clear filters”, “Show 0 Venues”, or an error message)
 
 Setup / Teardown
 
 Setup: Open staging map page, ensure filter panel is visible
 
-Teardown: Close browser (optional: reset filters if you want clean state for future tests)
+Teardown: Close browser and reset filters.
 
 Why this test is important
 This proves real functionality: filters aren’t just present; they trigger behavior and update what the user sees.
@@ -161,9 +161,7 @@ Edge-case handling when the map loads but venue data (markers/cards) does not re
 Expected outcome
 The application does not silently show an empty map. It should show one of:
 
-venue data (markers/cards) OR
-
-a clear feedback state (loading/no-results/error)
+venue data (markers/cards) OR a clear feedback state (loading/no-results/error)
 
 Setup / Teardown
 
@@ -172,7 +170,7 @@ Setup: Open staging map page and wait briefly for data render
 Teardown: Close browser
 
 Why this test is important
-This is a high-impact real-world risk for map-based SPAs: users interpret a blank map as a broken product. The test ensures graceful handling instead of silent failure.
+This is a high-impact real-world risk for map-based SPAs: users interpret a blank map as a broken product. The test ensures user friendly handling instead of unexplained failures.
 
 8) Venue Data Accuracy Test
 
@@ -191,4 +189,4 @@ Setup: Open staging map page, wait for UI/data render, read visible venue/title 
 Teardown: Close browser
 
 Why this test is important
-Even if the UI loads, bad data (blank names/titles) makes the product unusable. This catches data mapping/content issues early.
+Even if the UI loads, bad data (blank names/titles) makes the product unusable and hursta the UX part of the journey. This catches data mapping/content issues early.
