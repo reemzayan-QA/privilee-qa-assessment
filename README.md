@@ -190,3 +190,23 @@ Teardown: Close browser
 
 Why this test is important
 Even if the UI loads, bad data (blank names/titles) makes the product unusable and hursta the UX part of the journey. This catches data mapping/content issues early.
+
+9) OverFilteringNoVenuesTest – Over-filtering Edge Case Handling
+
+Feature being tested
+Application behavior when a user applies a large number of restrictive filters on the map.
+
+Expected outcome
+
+If filters result in zero venues, the application displays a clear empty-state message (e.g. “Sorry, there are no venues matching your search and filters”).
+
+If zero venues cannot be reached due to dynamic staging data, the application still displays a valid UI state (venues, loading indicator, no-results message, or error message), and does not end up in a silent blank screen.
+
+Setup / Teardown
+
+Setup: Open the Privilee map page, open the filter panel, apply a location filter and progressively apply additional filter options.
+
+Teardown: Browser is closed automatically after test execution.
+
+Why this test is important
+Map-based SPAs are especially prone to edge cases when filters become overly restrictive. This test validates that the application handles extreme filtering gracefully and always communicates a clear state to the user, rather than failing silently or appearing broken. The test is designed to be resilient to changing staging data and suitable for CI environments.
