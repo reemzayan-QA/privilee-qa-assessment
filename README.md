@@ -1,3 +1,5 @@
+![Tests](https://github.com/reemzayan-QA/privilee-qa-assessment/actions/workflows/test.yml/badge.svg)
+
 ## privilee-qa-assessment
 
 ## UI Automation
@@ -12,7 +14,18 @@ Screenshots on failure:
 artifacts/selenium-reports/screenshots/
 
 ---
+### Configurable test city (with fallback)
 
+UI tests support a configurable starting location via the `TEST_CITY` environment variable.
+
+By default, tests run using **Abu Dhabi**.
+
+You can override this when running locally:
+
+```bash
+TEST_CITY=Dubai mvn clean test
+
+---
 ## API Automation
 Tool: Postman + Newman  
 Base: https://gorest.co.in/public/v2
@@ -33,7 +46,7 @@ GitHub Actions runs both UI and API tests and uploads reports as artifacts.
 
 ---
 ## Details of the Test Scenarios
-## The following are 4 UI/smoke tests, 1 performance test, 2 functional tests covering normal and edge flows, and 1 data accuracy test.
+## The following are 4 UI/smoke tests, 1 performance test, 3 functional tests covering normal and edge flows, and 1 data accuracy test.
 
 1) Page Load Smoke Test
 
@@ -172,26 +185,7 @@ Teardown: Close browser
 Why this test is important
 This is a high-impact real-world risk for map-based SPAs: users interpret a blank map as a broken product. The test ensures user friendly handling instead of unexplained failures.
 
-8) Venue Data Accuracy Test
-
-Test: VenueDataAccuracyTest
-
-Feature being tested
-Accuracy/completeness of venue data displayed to the user (name/title not empty).
-
-Expected outcome
-At least one visible venue/title text is non-empty and meaningful (not blank).
-
-Setup / Teardown
-
-Setup: Open staging map page, wait for UI/data render, read visible venue/title text
-
-Teardown: Close browser
-
-Why this test is important
-Even if the UI loads, bad data (blank names/titles) makes the product unusable and hursta the UX part of the journey. This catches data mapping/content issues early.
-
-9) OverFilteringNoVenuesTest – Over-filtering Edge Case Handling
+8) OverFilteringNoVenuesTest – Over-filtering Edge Case Handling
 
 Feature being tested
 Application behavior when a user applies a large number of restrictive filters on the map.
@@ -210,3 +204,23 @@ Teardown: Browser is closed automatically after test execution.
 
 Why this test is important
 Map-based SPAs are especially prone to edge cases when filters become overly restrictive. This test validates that the application handles extreme filtering gracefully and always communicates a clear state to the user, rather than failing silently or appearing broken. The test is designed to be resilient to changing staging data and suitable for CI environments.
+
+9) Venue Data Accuracy Test
+
+Test: VenueDataAccuracyTest
+
+Feature being tested
+Accuracy/completeness of venue data displayed to the user (name/title not empty).
+
+Expected outcome
+At least one visible venue/title text is non-empty and meaningful (not blank).
+
+Setup / Teardown
+
+Setup: Open staging map page, wait for UI/data render, read visible venue/title text
+
+Teardown: Close browser
+
+Why this test is important
+Even if the UI loads, bad data (blank names/titles) makes the product unusable and hursta the UX part of the journey. This catches data mapping/content issues early.
+
