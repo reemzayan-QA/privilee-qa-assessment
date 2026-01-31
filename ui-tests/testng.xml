@@ -2,16 +2,27 @@
 <suite name="Privilee UI Suite">
   <test name="UI Tests">
     <classes>
+      <!-- Smoke / basic availability -->
       <class name="tests.PageLoadTest"/>
+
+      <!-- Core UI components -->
+      <class name="tests.MapLocatorTest"/>
       <class name="tests.FilterPanelTest"/>
       <class name="tests.FilterSelectionTest"/>
-      <class name="tests.MapLocatorTest"/>
-      <class name="tests.PerformanceTest"/>
+
+      <!-- Functional flows -->
       <class name="tests.FilterNormalFlowTest"/>
-      <class name="tests.MapEdgeCaseMarkersNotRenderedTest"/>
+
+      <!-- Data accuracy -->
       <class name="tests.VenueDataAccuracyTest"/>
+
+      <!-- Edge cases -->
+      <class name="tests.MapEdgeCaseMarkersNotRenderedTest"/>
       <class name="tests.OverFilteringNoVenuesTest"/>
 
+      <!-- Performance -->
+      <class name="tests.PerformanceTest"/>
     </classes>
   </test>
 </suite>
+

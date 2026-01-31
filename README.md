@@ -5,6 +5,9 @@
 ## UI Automation
 **Tool:** Selenium WebDriver + Java + TestNG  
 **Target:** https://staging-website.privilee.ae/map
+> Note: All tests in this module execute through the browser using Selenium.  
+> The folder is named `ui-tests` to reflect the execution layer, even though tests validate functional behavior, performance, and data accuracy.
+
 
 ### UI Local Runs
 ```bash
