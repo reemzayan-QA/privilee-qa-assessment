@@ -1,20 +1,21 @@
 ![Tests](https://github.com/reemzayan-QA/privilee-qa-assessment/actions/workflows/test.yml/badge.svg)
 
-## privilee-qa-assessment
+## privilee-qa-assessment-Automated Tests
 
 ## UI Automation
-Tool: Selenium WebDriver + Java + TestNG  
-Target: https://staging-website.privilee.ae/map
+**Tool:** Selenium WebDriver + Java + TestNG  
+**Target:** https://staging-website.privilee.ae/map
 
 ### UI Local Runs
-cd ui-tests  
+```bash
+cd ui-tests
 mvn clean test
 
-Screenshots on failure:
+Screenshots on failure are saved under:
 artifacts/selenium-reports/screenshots/
 
 ---
-### Configurable test city (with fallback)
+### Configurable Test City (with Fallback)
 
 UI tests support a configurable starting location via the `TEST_CITY` environment variable.
 
@@ -25,10 +26,12 @@ You can override this when running locally:
 ```bash
 TEST_CITY=Dubai mvn clean test
 
+If the specified city is not available due to staging data changes, the test falls back to a safe default to avoid unnecessary CI failures.
+
 ---
 ## API Automation
 Tool: Postman + Newman  
-Base: https://gorest.co.in/public/v2
+Base URL: https://gorest.co.in/public/v2
 
 ### API Local Runs
 npm install -g newman newman-reporter-htmlextra
@@ -46,7 +49,7 @@ GitHub Actions runs both UI and API tests and uploads reports as artifacts.
 
 ---
 ## Details of the Test Scenarios
-## The following are 4 UI/smoke tests, 1 performance test, 3 functional tests covering normal and edge flows, and 1 data accuracy test.
+## The following are: 4 UI/smoke tests, 1 performance test, 3 functional tests covering normal and edge flows, and 1 data accuracy test.
 
 1) Page Load Smoke Test
 
@@ -56,7 +59,7 @@ Feature being tested
 Privilee Map page loads successfully on staging.
 
 Expected outcome
-The page loads and all page components 
+The page loads and all page components are shown and successfully visible, for the landing page.
 
 Setup / Teardown
 
@@ -91,7 +94,7 @@ Filters are a primary entry point for user navigation. If the filter panel is mi
 Test: FilterSelectionTest
 
 Feature being tested
-Presence of filter selection buttons/ controls within the filter page , such city so on.
+Presence of filter selection buttons/ controls within the filter page , such as city selection.
 
 Expected outcome
 Filter selection buttons/ controls are visible and usable.
@@ -148,7 +151,7 @@ Performance is a main test to be carried out, especially for landing pages conta
 Test: FilterNormalFlowTest
 
 Feature being tested
-Functional filtering behavior when a user clicks a filter button/control.
+Functional filtering behavior when a user clicks a filter button/control/chip
 
 Expected outcome
 After clicking a filter button:
@@ -222,5 +225,5 @@ Setup: Open staging map page, wait for UI/data render, read visible venue/title 
 Teardown: Close browser
 
 Why this test is important
-Even if the UI loads, bad data (blank names/titles) makes the product unusable and hursta the UX part of the journey. This catches data mapping/content issues early.
+Even if the UI loads, bad data (blank names/titles) makes the product unusable and hurts the UX part of the journey. This catches data mapping/content issues early.
 
