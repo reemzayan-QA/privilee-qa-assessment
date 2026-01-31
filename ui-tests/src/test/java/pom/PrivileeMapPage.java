@@ -1,3 +1,4 @@
+
 package pom;
 
 import org.openqa.selenium.*;
@@ -10,12 +11,11 @@ import java.util.List;
 public class PrivileeMapPage {
 
     private final WebDriver driver;
-    private WebDriverWait wait;
+    private final WebDriverWait wait;
 
-    // ✅ Staging URL
     public static final String BASE_URL = "https://staging-website.privilee.ae/map";
 
-    // Stores which city we actually selected (requested or fallback)
+    // stores which city was actually selected (requested or fallback)
     private String lastSelectedCity = "";
 
     // ---------- Constructors ----------
@@ -24,17 +24,9 @@ public class PrivileeMapPage {
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(20));
     }
 
-    // Backward-compatible constructor
-    public PrivileeMapPage(WebDriver driver, WebDriverWait wait) {
-        this.driver = driver;
-        this.wait = (wait != null) ? wait : new WebDriverWait(driver, Duration.ofSeconds(20));
-    }
-
     // ---------- Locators ----------
     private final By filterHeader = By.xpath("//*[normalize-space()='Filter your search' or normalize-space()='Filters']");
-
     private final By filtersButton = By.xpath("//button[contains(normalize-space(.), 'Filters')]");
-
     private final By clearFilters = By.xpath("//*[contains(normalize-space(),'Clear filters')]");
 
     private final By loadingMsg = By.xpath("//*[contains(translate(.,'LOADING','loading'),'loading')]");
@@ -48,6 +40,7 @@ public class PrivileeMapPage {
             "contains(translate(.,'NO MATCH','no match'),'no match') or " +
             "contains(translate(.,'THERE ARE NO VENUES','there are no venues'),'there are no venues')]");
 
+    // Map and results are SPA-based, so use best-effort selectors
     private final By venueCards = By.cssSelector(
             "[class*='venue'], [class*='Venue'], [class*='result'], [class*='Result'], [class*='card'], [class*='Card']"
     );
@@ -56,24 +49,32 @@ public class PrivileeMapPage {
             "img[src*='googleapis.com'], img[src*='gstatic.com'], [aria-label*='marker'], [class*='marker']"
     );
 
+    // Footer CTA button inside filter panel (e.g., "Show 12 venues")
     private final By showVenuesButton = By.xpath("//button[contains(normalize-space(.), 'Show') and contains(normalize-space(.), 'venues')]");
     private final By showZeroVenuesButton = By.xpath("//button[contains(normalize-space(.), 'Show 0 venues')]");
 
+    // Empty state shown on main page when there are zero venues
     private final By zeroVenuesHeader = By.xpath("//*[contains(normalize-space(.), '0') and contains(translate(normalize-space(.),'VENUES','venues'),'venues')]");
     private final By zeroVenuesApology = By.xpath("//*[contains(normalize-space(.), 'Sorry, there are no venues matching your search and filters.')]");
+
+    // For data accuracy test to find any visible venue-like text
+    private final By venueTitleCandidates = By.cssSelector(
+            "h1, h2, h3, [class*='title'], [class*='Title'], [class*='name'], [class*='Name']"
+    );
 
     // ---------- Dynamic locator ----------
     private By filterChipByText(String text) {
         return By.xpath("//button[contains(normalize-space(.), '" + text + "')]");
     }
 
-    // ---------- Navigation ----------
+    // ---------- Basic actions ----------
     public void open() {
         driver.get(BASE_URL);
         wait.until(ExpectedConditions.presenceOfElementLocated(filterHeader));
     }
 
     public void openFiltersPanel() {
+        // In some layouts filter panel is already visible; if button exists, click it.
         List<WebElement> btns = driver.findElements(filtersButton);
         if (!btns.isEmpty()) {
             try {
@@ -85,7 +86,6 @@ public class PrivileeMapPage {
         }
     }
 
-    // ---------- Filter actions ----------
     public void selectFilterChip(String label) {
         By chip = filterChipByText(label);
         WebElement el = wait.until(ExpectedConditions.presenceOfElementLocated(chip));
@@ -103,11 +103,7 @@ public class PrivileeMapPage {
         return driver.findElements(filterChipByText(label)).size() > 0;
     }
 
-    /**
-     * - Try selecting requested city
-     * - If not found, select fallback city
-     * - Stores the selected city in lastSelectedCity
-     */
+    // ---------- Optional enhancement: city selection fallback ----------
     public String selectCityWithFallback(String requestedCity, String fallbackCity) {
         openFiltersPanel();
 
@@ -164,7 +160,7 @@ public class PrivileeMapPage {
         return driver.findElements(markerElements).size();
     }
 
-    // ---------- “Show venues” CTA helpers ----------
+    // ---------- CTA helpers ----------
     public boolean isShowZeroVenuesVisible() {
         return driver.findElements(showZeroVenuesButton).size() > 0;
     }
@@ -204,22 +200,14 @@ public class PrivileeMapPage {
         return headerVisible && apologyVisible;
     }
 
-    /**
-     * Applies filters until venue count is minimized.
-     * Uses requested city with a safe fallback to avoid invalid config values.
-     *
-     * @param requestedCity City (from TEST_CITY)
-     * @param fallbackCity  Safe fallback (e.g. "Abu Dhabi")
-     * @param maxClicks     Safety cap to avoid endless loops
-     * @return final "Show N venues" count (0..N) or -1 if CTA not found
-     */
+    // ---------- Edge-case helper: minimize venues ----------
     public int applyFiltersToMinimizeVenues(String requestedCity, String fallbackCity, int maxClicks) {
 
-        // Select city (requested or fallback) safely
         selectCityWithFallback(requestedCity, fallbackCity);
 
         int clicks = 0;
 
+        // filter options: buttons excluding Clear filters and CTA
         By optionButtons = By.xpath(
                 "//button[" +
                         "not(contains(normalize-space(.),'Clear filters')) and " +
@@ -245,7 +233,7 @@ public class PrivileeMapPage {
                     String label = btn.getText().trim();
                     if (label.isEmpty()) continue;
 
-                    // Avoid re-clicking the selected city label again
+                    // avoid re-clicking the selected city
                     if (!lastSelectedCity.isEmpty() && label.contains(lastSelectedCity)) continue;
 
                     try {
@@ -271,6 +259,68 @@ public class PrivileeMapPage {
         return getShowVenuesCount();
     }
 
+    // ---------- Compatibility helper for FilterNormalFlowTest ----------
+    public boolean clickFirstFilterButtonAndDetectChange() {
+
+        openFiltersPanel();
+
+        int beforeCards = getVenueCardCount();
+        int beforeMarkers = getMarkerLikeCount();
+
+        By filterButtons = By.xpath(
+                "//button[" +
+                        "not(contains(normalize-space(.), 'Clear filters')) and " +
+                        "not(contains(normalize-space(.), 'Show')) and " +
+                        "string-length(normalize-space(.)) > 1" +
+                        "]"
+        );
+
+        List<WebElement> buttons = driver.findElements(filterButtons);
+
+        for (WebElement btn : buttons) {
+            try {
+                if (!btn.isDisplayed() || !btn.isEnabled()) continue;
+
+                try {
+                    btn.click();
+                } catch (Exception e) {
+                    ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
+                }
+
+                waitShortForUpdate();
+
+                int afterCards = getVenueCardCount();
+                int afterMarkers = getMarkerLikeCount();
+
+                boolean changed = (afterCards != beforeCards) || (afterMarkers != beforeMarkers);
+                boolean hasState = isClearFiltersVisible() || isNoResultsVisible() || isErrorVisible() || isLoadingVisible();
+
+                if (changed || hasState) return true;
+
+            } catch (Exception ignored) {
+            }
+        }
+        return false;
+    }
+
+    // ---------- Compatibility helper for VenueDataAccuracyTest ----------
+    public String getAnyVisibleVenueText() {
+
+        List<WebElement> titles = driver.findElements(venueTitleCandidates);
+        for (WebElement el : titles) {
+            String t = safeText(el);
+            if (t != null && t.trim().length() >= 3) return t.trim();
+        }
+
+        List<WebElement> cards = driver.findElements(venueCards);
+        if (!cards.isEmpty()) {
+            String t = safeText(cards.get(0));
+            if (t != null && t.trim().length() >= 3) return t.trim();
+        }
+
+        return "";
+    }
+
     // ---------- Backward-compatible methods ----------
     public boolean isLoaded() {
         return isFilterPanelVisible();
@@ -284,9 +334,17 @@ public class PrivileeMapPage {
         return isFilterPanelVisible();
     }
 
-    // ---------- Utility ----------
+    // ---------- Helpers ----------
     public void waitShortForUpdate() {
         sleep(1500);
+    }
+
+    private String safeText(WebElement el) {
+        try {
+            return el.getText();
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     private void sleep(long ms) {
