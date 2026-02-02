@@ -2,7 +2,12 @@
 
 ## privilee-qa-assessment-Automated Tests
 
+This repository contains UI automation (Selenium + TestNG) and API automation (Postman + Newman) for the Privilee QA assessment.  
+CI runs everything via GitHub Actions and uploads reports/screenshots as artifacts.
+
+
 ## UI Automation
+
 **Tool:** Selenium WebDriver + Java + TestNG  
 **Target:** https://staging-website.privilee.ae/map
 > Note: All tests in this module execute through the browser using Selenium.  
@@ -10,44 +15,70 @@
 
 
 ### UI Local Runs
+
 ```bash
 cd ui-tests
 mvn clean test
+```
 
 Screenshots on failure are saved under:
 artifacts/selenium-reports/screenshots/
 
 ---
-### Configurable Test City (with Fallback)
+## Configurable Test City (with Fallback)
 
-UI tests support a configurable starting location via the `TEST_CITY` environment variable.
+UI tests support a configurable starting location via the TEST_CITY environment variable.
 
 By default, tests run using **Abu Dhabi**.
 
-You can override this when running locally:
-
-```bash
+macOS / Linux / Git Bash
 TEST_CITY=Dubai mvn clean test
 
-If the specified city is not available due to staging data changes, the test falls back to a safe default to avoid unnecessary CI failures.
+Windows PowerShell
+$env:TEST_CITY="Dubai"
+cd ui-tests
+mvn clean test
 
+
+If the specified city is not available due to staging data changes, the test falls back to a safe default to avoid unnecessary CI failures.
 ---
 ## API Automation
+
 Tool: Postman + Newman  
 Base URL: https://gorest.co.in/public/v2
 
-### API Local Runs
+GoREST Access Token (Required)
+
+GoREST requires a personal access token for reliable execution.
+
+1. Create a free account at https://gorest.co.in/
+
+2. Generate a personal access token from the dashboard.
+
+3. Set the token as an environment variable before running the tests.
+
+macOS / Linux / Git Bash
+export GOREST_TOKEN="YOUR_TOKEN_HERE"
+
+Windows PowerShell
+$env:GOREST_TOKEN="YOUR_TOKEN_HERE"
+
+## API Local Runs
+
+Install Newman and reporter:
 npm install -g newman newman-reporter-htmlextra
 
+Run the collection:
 newman run ./collections/gorest_public_v2.postman_collection.json \
 -e ./collections/gorest_env.json \
+--env-var token=$GOREST_TOKEN \
 --reporters cli,junit,htmlextra \
 --reporter-junit-export ./artifacts/newman/results.xml \
 --reporter-htmlextra-export ./artifacts/newman/report.html
 
 ---
-
 ## CI
+
 GitHub Actions runs both UI and API tests and uploads reports as artifacts.
 
 ---
@@ -75,7 +106,7 @@ If the page can’t load, all other functionality is blocked. This is your basic
 
 2) Filters Panel Visibility Test
 
-Test: FilterPanelTest (renamed from FilterPopupTest)
+Test: FilterPanelTest 
 
 Feature being tested
 Filter panel UI availability.
@@ -92,15 +123,15 @@ Teardown: Close the browser
 Why this test is important
 Filters are a primary entry point for user navigation. If the filter panel is missing or hidden, the experience breaks immediately.
 
-3) Search / Location Controls Visibility Test
+3) Filter Selection Buttons/Controls/Chips Visibility Test
 
 Test: FilterSelectionTest
 
 Feature being tested
-Presence of filter selection buttons/ controls within the filter page , such as city selection.
+Presence of filter selection buttons/ controls/chips within the filter page , such as city selection.
 
 Expected outcome
-Filter selection buttons/ controls are visible and usable.
+Filter selection buttons/ controls/chips are visible and usable.
 
 Setup / Teardown
 
@@ -109,7 +140,7 @@ Setup: Open staging map page and wait for the filter page to load
 Teardown: Close the browser
 
 Why this test is important
-Filter selection buttons/ controls are essential to be displayed, otherwise users can’t find venues efficiently and the filter section is broken.
+Filter selection buttons/ controls/chips are essential to be displayed, otherwise users can’t find venues efficiently and the filter section is broken.
 
 4) Map Rendering Test
 
@@ -165,7 +196,7 @@ Setup / Teardown
 
 Setup: Open staging map page, ensure filter panel is visible
 
-Teardown: Close browser and reset filters.
+Teardown: Close browser and reset filters
 
 Why this test is important
 This proves real functionality: filters aren’t just present; they trigger behavior and update what the user sees.
